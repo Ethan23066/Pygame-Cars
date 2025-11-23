@@ -1,5 +1,5 @@
 # player.py
-import pygae
+import pygame
 import settings
 import assets
 
