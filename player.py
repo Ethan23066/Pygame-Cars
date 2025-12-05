@@ -1,5 +1,4 @@
 # player.py
-import pygame
 import settings
 import assets
 
