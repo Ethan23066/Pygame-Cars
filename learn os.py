@@ -1,32 +1,57 @@
-import os
-import xml.etree.ElementTree as ET
+import pygame
+from pygame.locals import DOUBLEBUF, OPENGL
+from OpenGL.GL import *
+from pytmx import TiledMap
+import numpy as np
 
-def parse_tsx(tsx_path):
-    tree = ET.parse(tsx_path)
-    root = tree.getroot()
-    tilewidth = int(root.get("tilewidth"))
-    tileheight = int(root.get("tileheight"))
-    image = root.find("image")
-    source = image.get("source")
-    width = int(image.get("width"))
-    height = int(image.get("height"))
+def main():
+    pygame.init()
+    pygame.display.set_mode((800, 600), DOUBLEBUF | OPENGL)
+    glEnable(GL_TEXTURE_2D)
 
-    # chemin complet vers le PNG
-    tsx_dir = os.path.dirname(tsx_path)
-    png_path = os.path.join(tsx_dir, source)
+    # Charger la map TMX
+    tmx_data = TiledMap("maps/Race01_kart.tmx")
 
-    # calcul du nombre de colonnes/lignes
-    cols = width // tilewidth
-    rows = height // tileheight
+    # Exemple : transformer un calque en matrice numpy
+    layer = tmx_data.layers[0]  # premier calque
+    grid = np.array([[layer.data[y][x] for x in range(tmx_data.width)]
+                     for y in range(tmx_data.height)])
 
-    return {
-        "png": os.path.normpath(png_path),
-        "tilewidth": tilewidth,
-        "tileheight": tileheight,
-        "cols": cols,
-        "rows": rows
-    }
+    print("Grille numpy shape:", grid.shape)
 
-# Exemple
-info = parse_tsx("maps/road.tsx")
-print(info)
+    running = True
+    while running:
+        for e in pygame.event.get():
+            if e.type == pygame.QUIT:
+                running = False
+
+        glClear(GL_COLOR_BUFFER_BIT)
+
+        # Afficher la map entière
+        for y in range(tmx_data.height):
+            for x in range(tmx_data.width):
+                tile_id = grid[y, x]
+                if tile_id != 0:
+                    image = tmx_data.get_tile_image_by_gid(tile_id)
+                    if image:
+                        w, h = image.get_size()
+                        data = pygame.image.tostring(image, "RGBA", True)
+                        tex_id = glGenTextures(1)
+                        glBindTexture(GL_TEXTURE_2D, tex_id)
+                        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+                                     GL_RGBA, GL_UNSIGNED_BYTE, data)
+
+                        px, py = x * tmx_data.tilewidth, y * tmx_data.tileheight
+                        glBegin(GL_QUADS)
+                        glTexCoord2f(0, 0); glVertex2f(px, py)
+                        glTexCoord2f(1, 0); glVertex2f(px+w, py)
+                        glTexCoord2f(1, 1); glVertex2f(px+w, py+h)
+                        glTexCoord2f(0, 1); glVertex2f(px, py+h)
+                        glEnd()
+
+        pygame.display.flip()
+
+    pygame.quit()
+
+if __name__ == "__main__":
+    main()
