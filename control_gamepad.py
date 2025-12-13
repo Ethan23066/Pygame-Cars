@@ -1,26 +1,12 @@
-# controls_gamepad.py
 import pygame
-import settings
 
 class GamepadController:
     def __init__(self):
         pygame.joystick.init()
-        if pygame.joystick.get_count() > 0:
-            self.joystick = pygame.joystick.Joystick(0)
-            self.joystick.init()
-        else:
-            self.joystick = None
+        self.j = pygame.joystick.Joystick(0) if pygame.joystick.get_count() else None
+        if self.j: self.j.init()
 
-    def update(self, player_rect):
-        if not self.joystick:
-            return player_rect
-
-        # Axe gauche/droite
-        axis_x = self.joystick.get_axis(0)
-        # Axe haut/bas
-        axis_y = self.joystick.get_axis(1)
-
-        player_rect.x += int(axis_x * settings.PLAYER_SPEED)
-        player_rect.y += int(axis_y * settings.PLAYER_SPEED)
-
-        return player_rect
+    def get_input(self):
+        if not self.j: return {"up":0,"down":0,"left":0,"right":0}
+        ax = self.j.get_axis
+        return {"up":ax(1)<-0.5,"down":ax(1)>0.5,"left":ax(0)<-0.5,"right":ax(0)>0.5}

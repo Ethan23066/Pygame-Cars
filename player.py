@@ -1,21 +1,15 @@
-# player.py
-import settings
-import assets
+from kart import Kart_125_cc
 
 class Player:
-    def __init__(self, start_pos=(100, 100), sprite_file="car.png"):
-        # Charger le sprite PNG du joueur
-        self.image = assets.load_png(sprite_file)
-        self.rect = self.image.get_rect(topleft=start_pos)
-        self.speed = settings.PLAYER_SPEED
+    def __init__(self, x, y, image, controller):
+        self.kart = Kart_125_cc(x, y, image)
+        self.controller = controller
+        self.score = 0
+        self.health = 100
 
-    def update(self, controller):
-        """
-        Met à jour la position du joueur selon le contrôleur actif
-        (keyboard ou gamepad).
-        """
-        self.rect = controller.update(self.rect)
+    def update(self):
+        control_input = self.controller.get_input()
+        self.kart.update(control_input)
 
-    def draw(self, surface):
-        """Affiche le joueur sur l'écran."""
-        surface.blit(self.image, self.rect)
+    def draw(self, screen):
+        screen.blit(self.kart.image, self.kart.rect)

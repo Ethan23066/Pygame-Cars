@@ -1,11 +1,11 @@
-# select_control.py
+import pygame
 from control_keyboard import KeyboardController
 from control_gamepad import GamepadController
 
-def select_control(mode="keyboard"):
-    if mode == "keyboard":
-        return KeyboardController()
-    elif mode == "gamepad":
+def select_controller():
+    pygame.joystick.init()
+    # Si une manette est détectée (USB ou Bluetooth), on la prend
+    if pygame.joystick.get_count() > 0:
         return GamepadController()
-    else:
-        raise ValueError(f"Unknown control mode: {mode}")
+    # Sinon, on reste sur le clavier
+    return KeyboardController()
