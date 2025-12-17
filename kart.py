@@ -1,42 +1,41 @@
-import pygame, math
+import pygame
+import math
 
-class Kart(pygame.sprite.Sprite):
-    def __init__(self, pos=(100,100), sprite=None):
+class Kart_125_cc(pygame.sprite.Sprite):
+    def __init__(self, x, y, image):
         super().__init__()
-        self.original_image = sprite.convert_alpha()
-        self.image = self.original_image
-        self.rect = self.image.get_rect(center=pos)
-
-        # Physique
-        self.angle = 0.0
-        self.speed = 0.0
-        self.accel = 0.4
-        self.friction = 0.08
-        self.turn_speed = 3.0
-        self.max_speed = 8.0
+        self.original_image = image
+        self.image = image
+        self.rect = self.image.get_rect(center=(x, y))
+        self.pos = pygame.Vector2(x, y)
+        self.angle = 0
+        self.speed = 0
+        self.max_speed = 8
+        self.acceleration = 0.9
+        self.friction = 0.8
+        self.rotation_speed = 5
 
     def update(self, keys):
-        # Rotation gauche/droite
-        if keys[pygame.K_LEFT]:
-            self.angle += self.turn_speed
-        if keys[pygame.K_RIGHT]:
-            self.angle -= self.turn_speed
-
-        # Avancer (flèche ↑)
+        # Contrôle directionnel
         if keys[pygame.K_UP]:
-            self.speed = min(self.max_speed, self.speed + self.accel)
-        else:
-            # friction naturelle
-            if self.speed > 0:
-                self.speed = max(0, self.speed - self.friction)
+            self.speed += self.acceleration
+        if keys[pygame.K_DOWN]:
+            self.speed -= self.acceleration
+        if keys[pygame.K_LEFT]:
+            self.angle += self.rotation_speed
+        if keys[pygame.K_RIGHT]:
+            self.angle -= self.rotation_speed
 
-        # Déplacement selon angle
-        rad = math.radians(self.angle)
-        dx = math.cos(rad) * self.speed
-        dy = math.sin(rad) * self.speed
-        self.rect.centerx += dx
-        self.rect.centery += dy
+        # Clamp + friction
+        self.speed = max(-self.max_speed, min(self.speed, self.max_speed))
+        self.speed *= self.friction
 
-        # Rotation visuelle
-        self.image = pygame.transform.rotozoom(self.original_image, self.angle, 1.0)
-        self.rect = self.image.get_rect(center=self.rect.center)
+        # Mouvement dans la direction de l'angle
+        dx = -math.sin(math.radians(self.angle)) * self.speed
+        dy =  math.cos(math.radians(self.angle)) * self.speed
+        self.pos.x += dx
+        self.pos.y += dy
+
+        # Rotation visuelle (inversée pour correspondre à l'angle trigonométrique)
+        self.image = pygame.transform.rotate(self.original_image, -self.angle)
+        self.rect = self.image.get_rect(center=self.pos)
