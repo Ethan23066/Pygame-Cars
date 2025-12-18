@@ -27,7 +27,7 @@ class Game:
 
         # Charger la map
         maps = MapManager("maps")
-        self.tmx_data = maps.load_map("Race01_kart.tmx")
+        self.tmx_data = maps.load_map("Race02_kart.tmx")
         self.tile_w, self.tile_h = self.tmx_data.tilewidth, self.tmx_data.tileheight
 
         # Créer la caméra maison
@@ -81,6 +81,6 @@ class Game:
             self.screen.blit(self.player.image, self.camera.apply(self.player.rect))
             pygame.display.flip()
 
-            self.clock.tick(60)
+            self.clock.tick(20)
 
         pygame.quit()
