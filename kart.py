@@ -7,7 +7,7 @@ class Kart125CC(pygame.sprite.Sprite):
         super().__init__()
 
         # --- Image ---
-        self.original_image = pygame.transform.smoothscale(image, (50, 50))
+        self.original_image = pygame.transform.smoothscale(image, (80, 80))
         self.image = self.original_image
         self.rect = self.image.get_rect(center=(x, y))
 
@@ -19,11 +19,11 @@ class Kart125CC(pygame.sprite.Sprite):
         self.speed = 0.0
 
         # --- Réglages ---
-        self.max_speed = 8.0
-        self.acceleration = 0.15
-        self.brake_force = 0.2
-        self.friction = 0.05
-        self.rotation_speed = 3.0
+        self.max_speed = 10.0
+        self.acceleration = 0.05
+        self.brake_force = 0.02
+        self.friction = 0.01
+        self.rotation_speed = 2.0
         self.turn_drag = 0.12     # perte de vitesse en virage
 
     def update(self, keys):
