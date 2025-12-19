@@ -1,32 +1,39 @@
 import pygame
 import math
 
-class Kart_125_cc(pygame.sprite.Sprite):
+
+class Kart125CC(pygame.sprite.Sprite):
     def __init__(self, x, y, image):
         super().__init__()
 
-        # Images
-        self.original_image = image
-        self.image = image
+        # --- Image ---
+        self.original_image = pygame.transform.smoothscale(image, (50, 50))
+        self.image = self.original_image
         self.rect = self.image.get_rect(center=(x, y))
 
-        # Position & mouvement
+        # --- Position ---
         self.pos = pygame.Vector2(x, y)
-        self.angle = 0.0              # en degrés
+
+        # --- Mouvement ---
+        self.angle = 0.0          # degrés (0 = vers le haut)
         self.speed = 0.0
 
-        # Réglages arcade
+        # --- Réglages ---
         self.max_speed = 8.0
         self.acceleration = 0.15
-        self.friction = 0.04
+        self.brake_force = 0.2
+        self.friction = 0.05
         self.rotation_speed = 3.0
+        self.turn_drag = 0.12     # perte de vitesse en virage
 
     def update(self, keys):
+        turning = False
+
         # --- Accélération / frein ---
         if keys[pygame.K_UP]:
-            self.speed += self.acceleration
-        elif keys[pygame.K_DOWN]:
             self.speed -= self.acceleration
+        elif keys[pygame.K_DOWN]:
+            self.speed += self.brake_force
         else:
             # friction naturelle
             if self.speed > 0:
@@ -41,14 +48,21 @@ class Kart_125_cc(pygame.sprite.Sprite):
         # Clamp vitesse
         self.speed = max(-self.max_speed, min(self.speed, self.max_speed))
 
-        # --- Rotation (dépend de la vitesse) ---
-        if abs(self.speed) > 0.1:
+        # --- Rotation (uniquement si on roule) ---
+        if abs(self.speed) > 0.2:
             if keys[pygame.K_LEFT]:
-                self.angle += self.rotation_speed * (self.speed / self.max_speed)
+                self.angle += self.rotation_speed
+                turning = True
             if keys[pygame.K_RIGHT]:
-                self.angle -= self.rotation_speed * (self.speed / self.max_speed)
+                self.angle -= self.rotation_speed
+                turning = True
 
-        # --- Mouvement avec trigonométrie ---
+        # --- Ralentissement en virage ---
+        if turning:
+            ratio = abs(self.speed) / self.max_speed
+            self.speed -= self.turn_drag * ratio * (1 if self.speed > 0 else -1)
+
+        # --- Déplacement ---
         rad = math.radians(self.angle)
         direction = pygame.Vector2(-math.sin(rad), -math.cos(rad))
         self.pos += direction * self.speed
