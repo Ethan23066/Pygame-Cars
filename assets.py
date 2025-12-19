@@ -1,17 +1,8 @@
-import pygame
-import settings
 import os
+import pygame
 
-def load_png(filename, size=None):
-    """
-    Charge un fichier PNG depuis assets/sprites/.
-    - filename : nom du fichier (ex: "car.png")
-    - size : tuple (w, h) pour redimensionner, sinon SPRITE_SIZE par défaut
-    """
-    path = os.path.join(settings.ASSETS_DIR, filename)
-    image = pygame.image.load(path).convert_alpha()
-
-    if size:
-        return pygame.transform.scale(image, size)
-    return pygame.transform.scale(image, (settings.SPRITE_SIZE, settings.SPRITE_SIZE))
-
+def load_png(relative_path):
+    path = os.path.join("assets", relative_path)
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Sprite introuvable: {path}")
+    return pygame.image.load(path).convert_alpha()
