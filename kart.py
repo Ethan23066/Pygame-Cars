@@ -18,21 +18,22 @@ class Kart125CC(pygame.sprite.Sprite):
         self.angle = 0.0          # degrés
         self.speed = 0.0
 
-        # --- Réglages (par seconde, dt-safe) ---
+        # --- Réglages (dt-safe) ---
         self.max_speed = 320.0
         self.acceleration = 40.0
         self.brake_force = 50.0
-        self.friction = 10.0
+        self.friction = 1.0
         self.rotation_speed = 30.0
         self.turn_drag = 100.0
 
-    def update(self, keys, dt):
+
+    def update(self, actions, dt):
         turning = False
 
         # --- Accélération / frein ---
-        if keys[pygame.K_UP]:
+        if actions.get("accelerate", False):
             self.speed -= self.acceleration * dt
-        elif keys[pygame.K_DOWN]:
+        elif actions.get("brake", False):
             self.speed += self.brake_force * dt
         else:
             if self.speed > 0:
@@ -44,15 +45,15 @@ class Kart125CC(pygame.sprite.Sprite):
                 if self.speed > 0:
                     self.speed = 0
 
-        # Clamp vitesse
+        # --- Clamp vitesse ---
         self.speed = max(-self.max_speed, min(self.speed, self.max_speed))
 
-        # --- Rotation (si on roule) ---
+        # --- Rotation (uniquement si le kart roule) ---
         if abs(self.speed) > 0.2:
-            if keys[pygame.K_LEFT]:
+            if actions.get("left", False):
                 self.angle += self.rotation_speed * dt
                 turning = True
-            if keys[pygame.K_RIGHT]:
+            if actions.get("right", False):
                 self.angle -= self.rotation_speed * dt
                 turning = True
 

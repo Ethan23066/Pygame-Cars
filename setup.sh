@@ -1,29 +1,27 @@
 #!/bin/bash
+set -e
 
-echo "=== Pygame Cars setup ==="
+echo "=== Pygame Cars - Setup Linux ==="
 
-# Vérif python
-if ! command -v python3 >/dev/null 2>&1; then
-    echo "❌ Python3 non trouvé"
-    exit 1
-fi
+# Vérifie python3
+command -v python3 >/dev/null || {
+  echo "❌ python3 non trouvé"
+  exit 1
+}
 
-# Création venv
+# Crée le venv si absent
 if [ ! -d ".venv" ]; then
-    echo "➡ Création du venv"
-    python3 -m venv .venv
+  python3 -m venv .venv
 fi
 
-# Activation
-echo "➡ Activation du venv"
+# Active le venv
 source .venv/bin/activate
 
-# Upgrade pip
-pip install --upgrade pip
+# Toujours utiliser le pip du venv
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 
-# Install deps
-echo "➡ Installation des dépendances"
-pip install -r requirements.txt
+echo
+echo "Setup termine"
+echo "Lance le jeu avec : python main.py"
 
-echo "✅ Setup terminé"
-echo "👉 Lance le jeu avec : main.py"

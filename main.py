@@ -5,6 +5,7 @@ from select_sprite import SelectSprite
 from game import Game
 from settings import WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, FPS
 
+
 def main():
     pygame.init()
 
@@ -17,9 +18,6 @@ def main():
     selected_map = None
     selected_sprite = None
 
-    # -------- TIME SCALE (TEST MODE) --------
-    time_scale = 1.0  # 0.5 = slow | 1.0 = normal | 2.0 = fast test
-
     # -------- UI --------
     menu = MainMenu(screen)
     select_map = SelectMap(screen)
@@ -29,22 +27,12 @@ def main():
     running = True
 
     while running:
-        raw_dt = clock.tick(FPS) / 1000.0
-        dt = raw_dt * time_scale   # 🔥 ICI le boost de test
+        dt = clock.tick(FPS) / 1000.0
 
         # -------- EVENTS --------
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-
-            if event.type == pygame.KEYDOWN:
-                # --- TIME SCALE CONTROLS ---
-                if event.key == pygame.K_F1:
-                    time_scale = 0.5
-                elif event.key == pygame.K_F2:
-                    time_scale = 1.0
-                elif event.key == pygame.K_F3:
-                    time_scale = 2.0
 
             if state == "MENU":
                 result = menu.handle_event(event)
@@ -88,6 +76,7 @@ def main():
         pygame.display.flip()
 
     pygame.quit()
+
 
 if __name__ == "__main__":
     main()
