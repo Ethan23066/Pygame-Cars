@@ -19,12 +19,12 @@ class Kart125CC(pygame.sprite.Sprite):
         self.speed = 0.0
 
         # --- Réglages (dt-safe) ---
-        self.max_speed = 320.0
+        self.max_speed = 240.0
         self.acceleration = 40.0
         self.brake_force = 50.0
         self.friction = 1.0
         self.rotation_speed = 30.0
-        self.turn_drag = 100.0
+        self.turn_drag = 50.0
 
 
     def update(self, actions, dt):
