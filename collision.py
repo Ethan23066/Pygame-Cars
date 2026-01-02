@@ -1,42 +1,66 @@
-# collision.py
-# Règles de collision par tiles
-# Source de vérité du monde (mur / herbe / route)
+import pygame
 
-TILE_WALL = 1     # mur (bloquant)
-TILE_GRASS = 2    # herbe (ralentit)
-TILE_ROAD = 0     # route (normal)
+# ------------------------------
+# Types de terrain
+# ------------------------------
+TILE_WALL = 1
+TILE_OUT  = 2
+TILE_RACE = 3
 
 class CollisionMap:
-    def __init__(self, tile_map, tile_size):
-        """
-        tile_map : matrice 2D des tiles
-        tile_size : taille d'une tile en pixels
-        """
-        self.tile_map = tile_map
-        self.tile_size = tile_size
-
-    def world_to_tile(self, x, y):
-        """Convertit position monde → coordonnées tile"""
-        tile_x = int(x // self.tile_size)
-        tile_y = int(y // self.tile_size)
-        return tile_x, tile_y
+    def __init__(self, collision_image_path):
+        """Charge une image de collision basée sur les couleurs"""
+        self.img = pygame.image.load(collision_image_path).convert()
+        self.width = self.img.get_width()
+        self.height = self.img.get_height()
 
     def get_tile(self, x, y):
-        """Retourne le type de tile à une position monde"""
-        tx, ty = self.world_to_tile(x, y)
+        """Retourne le type de terrain selon la couleur du pixel"""
 
-        if ty < 0 or ty >= len(self.tile_map):
-            return TILE_WALL
-        if tx < 0 or tx >= len(self.tile_map[0]):
+        # Hors limites = mur
+        if x < 0 or y < 0 or x >= self.width or y >= self.height:
             return TILE_WALL
 
-        return self.tile_map[ty][tx]
+        color = self.img.get_at((int(x), int(y)))[:3]
 
-    def is_wall(self, x, y):
-        return self.get_tile(x, y) == TILE_WALL
+        # BLEU = WALL
+        if color == (0, 0, 255):
+            return TILE_WALL
 
-    def is_grass(self, x, y):
-        return self.get_tile(x, y) == TILE_GRASS
+        # VERT = OUT OF RACE
+        if color == (0, 255, 0):
+            return TILE_OUT
+
+        # GRIS = RACE
+        if color in [(128, 128, 128), (127, 127, 127), (129, 129, 129)]:
+            return TILE_RACE
+
+        # Par défaut : piste
+        return TILE_RACE
 
     def is_road(self, x, y):
-        return self.get_tile(x, y) == TILE_ROAD
+        return self.get_tile(x, y) == TILE_RACE
+
+    def friction(self, x, y):
+        tile = self.get_tile(x, y)
+
+        if tile == TILE_RACE:
+            return 1.0
+        if tile == TILE_OUT:
+            return 0.6
+        if tile == TILE_WALL:
+            return 0.0
+
+        return 1.0
+
+    def speed_modifier(self, x, y):
+        tile = self.get_tile(x, y)
+
+        if tile == TILE_RACE:
+            return 1.0
+        if tile == TILE_OUT:
+            return 0.7
+        if tile == TILE_WALL:
+            return 0.0
+
+        return 1.0

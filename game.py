@@ -91,7 +91,7 @@ class Game:
     # -------- UPDATE --------
     def update(self, dt):
         actions = self.get_actions()
-        self.player.update(actions, dt)
+        self.player.update(actions, dt, self.collision_map)
         self.camera.update(
             self.player.rect,
             self.map_width_px,
